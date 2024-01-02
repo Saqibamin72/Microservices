@@ -13,9 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
+import java.util.stream.Collectors;
 
 
 @Service
@@ -42,10 +43,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String userId) {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id not found!!"+userId));
-        ArrayList<Rating> ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),ArrayList.class);
-        log.info("{}",ratingsOfUser);
-        user.setRatings(ratingsOfUser);
+        //ArrayList<Rating> ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),ArrayList.class);
+        Rating[] ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),Rating[].class);
 
+        log.info("{}",ratingsOfUser);
+       List<Rating>ratings= Arrays.stream(ratingsOfUser).toList();
+
+
+      List<Rating>ratingList=  ratings.stream().map(rating -> {
+
+      ResponseEntity<Hotel>forEntity=restTemplate.getForEntity("http://localhost:8081/hotels/"+rating.getHotelId(), Hotel.class);
+      Hotel hotel=forEntity.getBody();
+      log.info("response status code{}",forEntity.getStatusCode());
+      rating.setHotel(hotel);
+      return rating;
+
+        }).collect(Collectors.toList());
+
+        user.setRatings(ratingList);
         return user;
 
     }

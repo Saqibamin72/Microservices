@@ -1,24 +1,35 @@
 package com.saqib.user.UserService.service;
 
+import com.saqib.user.UserService.entity.Hotel;
+import com.saqib.user.UserService.entity.Rating;
 import com.saqib.user.UserService.entity.User;
 import com.saqib.user.UserService.exception.ResourceNotFoundException;
 import com.saqib.user.UserService.repository.UserRepository;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.mapping.Array;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+
 
 @Service
 @Log4j2
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Override
     public User saveUser(User user) {
         String randomUUID= UUID.randomUUID().toString();
-        user.setUserId(randomUUID);
+        user.setUserID(randomUUID);
         return userRepository.save(user);
 
     }
@@ -30,6 +41,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(String userId) {
-        return userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id not found!!"+userId));
+        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id not found!!"+userId));
+        ArrayList<Rating> ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),ArrayList.class);
+        log.info("{}",ratingsOfUser);
+        user.setRatings(ratingsOfUser);
+
+        return user;
+
     }
 }

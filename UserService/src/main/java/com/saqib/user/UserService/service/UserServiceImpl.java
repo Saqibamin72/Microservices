@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id not found!!"+userId));
        // ArrayList<Rating> ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),ArrayList.class);
         Rating[] ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),Rating[].class);
+        //Removing Host and port of Microservices
+        // Rating[] ratingsOfUser=restTemplate.getForObject("http://RATING_SERVICE/ratings/users/"+user.getUserID(),Rating[].class);
 
         log.info("{}",ratingsOfUser);
        List<Rating>ratings= Arrays.stream(ratingsOfUser).toList();
@@ -52,8 +54,11 @@ public class UserServiceImpl implements UserService {
 
       List<Rating>ratingList=  ratings.stream().map(rating -> {
 
-      ResponseEntity<Hotel>forEntity=restTemplate.getForEntity("http://localhost:8081/hotels/"+rating.getHotelId(), Hotel.class);
-      Hotel hotel=forEntity.getBody();
+     ResponseEntity<Hotel>forEntity=restTemplate.getForEntity("http://localhost:8081/hotels/"+rating.getHotelId(), Hotel.class);
+          //Removing Host and port of Microservices
+         // ResponseEntity<Hotel>forEntity=restTemplate.getForEntity("http://HOTEL_SERVICE/hotels/"+rating.getHotelId(), Hotel.class);
+
+          Hotel hotel=forEntity.getBody();
       log.info("response status code{}",forEntity.getStatusCode());
       rating.setHotel(hotel);
       return rating;

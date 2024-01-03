@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String userId) {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user with given id not found!!"+userId));
-        //ArrayList<Rating> ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),ArrayList.class);
+       // ArrayList<Rating> ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),ArrayList.class);
         Rating[] ratingsOfUser=restTemplate.getForObject("http://localhost:8082/ratings/users/"+user.getUserID(),Rating[].class);
 
         log.info("{}",ratingsOfUser);

@@ -9,18 +9,18 @@ Spring:
     gateway:
       routes:
         - id: USER_SERVICE
-          uri: https://localhost:8080
+          uri: lb://USER_SERVICE
           predicates:
             - Path=/users/**
 
         - id: HOTEL_SERVICE
-          uri: https://localhost.8081
+          uri: lb://HOTEL_SERVICE
           predicates:
             - Path=/hotels/**
 
 
         - id: RATING_SERVICE
-          uri: https://localhost.8082
+          uri: lb://RATING_SERVICE
           predicates:
             - Path=/ratings/**
 
